@@ -1,10 +1,12 @@
+#!/usr/bin/env python3
 import sys
 import imutils
 import cv2 as cv
 import numpy as np
 
 SCALE_FACTOR = 2  # downscale to make matching faster
-MATCH_TRESHOLD = 0.99  # minimal treshold to consider a match
+MATCH_TRESHOLD = 0.95  # minimal treshold to consider a match
+IMAGE_MODE = cv.IMREAD_UNCHANGED  # set to cv.IMREAD_GRAYSCALE for speed
 
 USAGE_TEXT = '''Usage:
     match file1.jpg file2.jpg [method]
@@ -41,10 +43,10 @@ def read_flags():
 
 def read_images(fname1, fname2):
     "read images with cv.imread"
-    img1 = cv.imread(fname1, cv.IMREAD_UNCHANGED)
+    img1 = cv.imread(fname1, IMAGE_MODE)
     if img1 is None:
         raise Exception("Failed to read {}".format(img1))
-    img2 = cv.imread(fname2, cv.IMREAD_UNCHANGED)
+    img2 = cv.imread(fname2, IMAGE_MODE)
     if img2 is None:
         raise Exception("Failed to read {}".format(img2))
     return (img1, img2)
@@ -57,6 +59,20 @@ def resize(img, scale_factor):
     return imutils.resize(img, width=int(img.shape[1] / scale_factor))
 
 
+def get_match(img1, img2, meth):
+    '''Returns position of img2 in img1
+    using template search method meth'''
+    res = cv.matchTemplate(img1, img2, eval(meth))
+    if meth in ['cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']:
+        loc = np.where(res <= 1 - MATCH_TRESHOLD)
+    else:
+        loc = np.where(res >= MATCH_TRESHOLD)
+    matches = list(zip(*loc[::-1]))
+    if len(matches) == 0:
+        return None
+    return matches[0]
+
+
 if __name__ == "__main__":
     fname1, fname2, meth = read_flags()
     img1, img2 = read_images(fname1, fname2)
@@ -67,16 +83,10 @@ if __name__ == "__main__":
     if (img1.shape[0] < img2.shape[0]) or (img1.shape[1] < img2.shape[1]):
         img1, img2 = img2, img1
         fname1, fname2 = fname2, fname1
-
-    res = cv.matchTemplate(img1, img2, eval(meth))
-    if meth in ['cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']:
-        loc = np.where(res <= 1 - MATCH_TRESHOLD)
-    else:
-        loc = np.where(res >= MATCH_TRESHOLD)
-    matches = list(zip(*loc[::-1]))
-    if len(matches) == 0:
+    pos = get_match(img1, img2, meth)
+    if pos is None:
         print("No match found")
         sys.exit(0)
-    scaled_match = (matches[0][0]*SCALE_FACTOR, matches[0][1]*SCALE_FACTOR)
+    scaled_match = (pos[0]*SCALE_FACTOR, pos[1]*SCALE_FACTOR)
     print("{} is a crop of {} with offset {}".format(
         fname2, fname1, scaled_match))

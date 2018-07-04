@@ -14,4 +14,5 @@ setup(
     tests_require=[
         'nose==1.3.7'
     ],
+    scripts=['waldo-match/match.py'],
 )

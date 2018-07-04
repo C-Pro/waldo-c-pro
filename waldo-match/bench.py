@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import glob
 import time
 import math
@@ -7,8 +8,8 @@ import cv2 as cv
 from match import METHODS, read_images, resize
 
 REFERENCE_POINT = (1000, 1000)  # where test images are cropped
-MATCH_TRESHOLD = 0.99  # minimal treshold to consider a match
-SCALE_FACTOR = 4  # downscale to make matching faster
+MATCH_TRESHOLD = 0.95  # minimal treshold to consider a match
+SCALE_FACTOR = 2  # downscale to make matching faster
 
 
 def dist2d(x, y):
@@ -18,7 +19,7 @@ def dist2d(x, y):
 
 if __name__ == "__main__":
     REFERENCE_POINT = [x/SCALE_FACTOR for x in REFERENCE_POINT]
-    os.chdir('/home/cpro/work/experiments/waldo-c-pro/waldo-match/test_data')
+    os.chdir('test_data')
     cropped = glob.glob('crop_*.jpg')
     originals = [f[len('crop_'):] for f in cropped]
     # compare speed and accuracy
