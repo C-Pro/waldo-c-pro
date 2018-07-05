@@ -1,12 +1,16 @@
 # waldo-match
 
+[![Build Status](https://travis-ci.org/C-Pro/waldo-c-pro.svg?branch=master)](https://travis-ci.org/C-Pro/waldo-c-pro)
+
 Script [match.py](waldo-match/match.py) finds cropped areas in pairs of images. It uses OpenCV `matchTemplate` function for template matching.
 It accepts two file names as arguments and if one image is a crop of another it returns which one is source, and which is a crop and coordinates of top-left corner of cropped area. Otherwise it prints "No match found".
 
 ## Installation
 
+Script requires python>=3.6.
+
 ```
-./setup.py install
+make install
 ```
 
 ## Usage
