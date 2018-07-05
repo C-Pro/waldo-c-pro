@@ -11,8 +11,5 @@ setup(
         'imutils==0.4.6',
         'numpy==1.14.5'
     ],
-    tests_require=[
-        'nose==1.3.7'
-    ],
     scripts=['waldo-match/match.py'],
 )
